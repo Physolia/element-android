@@ -18,11 +18,26 @@ package org.matrix.android.sdk.api.session.room.model.livelocation
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import org.matrix.android.sdk.api.session.events.model.Content
 import org.matrix.android.sdk.api.session.room.model.message.LocationAsset
 import org.matrix.android.sdk.api.session.room.model.message.LocationAssetType
+import org.matrix.android.sdk.api.session.room.model.message.MessageContent
+import org.matrix.android.sdk.api.session.room.model.message.MessageType
+import org.matrix.android.sdk.api.session.room.model.relation.RelationDefaultContent
 
 @JsonClass(generateAdapter = true)
 data class LiveLocationBeaconContent(
+        // TODO check if there is a better way than implementing MessageContent
+        /**
+         * Local message type, not from server
+         */
+        @Transient
+        override val msgType: String = MessageType.MSGTYPE_LIVE_LOCATION_STATE,
+
+        @Json(name = "body") override val body: String = "",
+        @Json(name = "m.relates_to") override val relatesTo: RelationDefaultContent? = null,
+        @Json(name = "m.new_content") override val newContent: Content? = null,
+
         /**
          * Indicates user's intent to share ephemeral location.
          */
@@ -38,7 +53,7 @@ data class LiveLocationBeaconContent(
          */
         @Json(name = "org.matrix.msc3488.asset") val unstableLocationAsset: LocationAsset = LocationAsset(LocationAssetType.SELF),
         @Json(name = "m.asset") val locationAsset: LocationAsset? = null
-) {
+) : MessageContent {
 
     fun getBestBeaconInfo() = beaconInfo ?: unstableBeaconInfo
 
